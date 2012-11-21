@@ -1,1 +1,1 @@
-gunicorn -c config.py
+gunicorn web:app -c config.py --daemon
