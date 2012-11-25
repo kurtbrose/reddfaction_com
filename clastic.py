@@ -407,9 +407,8 @@ def make_middleware_chain(middlewares, endpoint, render, provided):
         endpoints_provides = []
     if requests:
         requests, requests_provides = zip(*requests)
-        requests_provides = set(requests_provides)
     else:
-        requests_provides = set()
+        requests_provides = []
 
     request_params, request_optional =\
         chain_argspec(requests, requests_provides)
@@ -420,7 +419,10 @@ def make_middleware_chain(middlewares, endpoint, render, provided):
     render_params, render_optional =\
         chain_argspec(list(renders)+[render], [()]*(len(middlewares)+1))
 
-    available_params = set(sum(map(tuple, requests_provides), ()) + tuple(provided))
+    requests_provides_set = set()
+    map(requests_provides_set.update, requests_provides)
+
+    available_params = requests_provides_set | set(provided)
 
     ep_unresolved = tuple(endpoint_params - available_params)
     if ep_unresolved:
@@ -459,7 +461,7 @@ def make_middleware_chain(middlewares, endpoint, render, provided):
     d = {'endpoint':endpoint, 'render':render, 'Response':Response}
     exec compile(inner_code, '<string>', 'single') in d
 
-    request_params |= endpoint_params|render_params-set(['context'])-requests_provides
+    request_params |= (endpoint_params|render_params)-set(['context'])-requests_provides_set
 
     mw_exec = make_chain(
         list(requests)+[d['inner']], [request_params]+list(requests_provides) )

@@ -1,7 +1,13 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+import clastic
 
 Base = declarative_base()
+SESSION = sessionmaker()
+ENGINE = create_engine('sqlite:///:memory:', echo=True)
 
 class User(Base):
     __tablename__ = 'users'
@@ -23,19 +29,17 @@ class Message(Base):
     edited  = DateTime()
     contents = Text()
 
-def test():
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
+#NOTE: this must go after classes are defined
+Base.metadata.create_all(ENGINE)
+SESSION.configure(bind=ENGINE)
 
-    engine = create_engine('sqlite:///:memory:', echo=True)
-    Base.metadata.create_all(engine)
+class DBSessionMiddleware(clastic.Middleware):
+    provides = ('db_session',)
 
-    Session = sessionmaker()
-    Session.configure(bind=engine)
-
-    session = Session()
-
-if __name__ == "__main__":
-    test()
+    def request(self, next):
+        session = SESSION()
+        ret = next(session)
+        session.commit() #if exception is raised, do not commit
+        return ret
 
 
