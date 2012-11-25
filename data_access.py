@@ -7,7 +7,8 @@ import clastic
 
 Base = declarative_base()
 SESSION = sessionmaker()
-ENGINE = create_engine('sqlite:///:memory:', echo=True)
+ENGINE = create_engine('sqlite:///reddfaction.db')
+#TODO: real DB
 
 class User(Base):
     __tablename__ = 'users'

@@ -20,7 +20,7 @@ def login(reddit_auth):
         response_type="code",
         scope="identity",
         state=base64.b64encode(os.urandom(32)), #reddit doesn't like unprintable states
-        redirect_uri = "http://127.0.0.1:8000/auth")
+        redirect_uri = "http://reddfaction.com/auth")
     return redirect(authorize_url)
 
 def auth(request, reddit_auth, db_session):
@@ -30,7 +30,7 @@ def auth(request, reddit_auth, db_session):
         data = { 
             "grant_type" : "authorization_code", 
             "code" : code, 
-            "redirect_uri" : "http://127.0.0.1:8000/auth",
+            "redirect_uri" : "http://reddfaction.com/auth",
         }
     )
     if 'access_token' not in resp.content:
