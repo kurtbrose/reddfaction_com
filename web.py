@@ -15,6 +15,9 @@ from data_access import User
 def hello_world():
     return Response("Hello, World!")
 
+def main():
+    return Response('<html><body><a href="/login">login</a></body></html>')
+
 def login(reddit_auth):
     authorize_url = reddit_auth.get_authorize_url(
         response_type="code",
@@ -60,9 +63,9 @@ def create_app():
     passthru = lambda a: a
     #TODO: templates/rendering
     routes = [
-        ('/',      hello_world, passthru),
-        ('/login', login,       passthru),
-        ('/auth',  auth,        passthru),
+        ('/',      main,  passthru),
+        ('/login', login, passthru),
+        ('/auth',  auth,  passthru),
     ]
 
     app = clastic.Application(routes, resources, middlewares=[data_access.DBSessionMiddleware()])
